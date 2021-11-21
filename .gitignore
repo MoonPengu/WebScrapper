@@ -1,0 +1,15 @@
+__pycache__/
+.idea
+test.py
+\.vs/
+\.vscode/
+dist/
+**/__pycache__i/
+*.pyc
+*.pyo
+*.idea
+\.vs/
+**/build/
+**/dist/
+*.spec
+*.exe
