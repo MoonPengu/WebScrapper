@@ -7,7 +7,11 @@ from ui.mainWindow import Ui_MainWindow
 import webbrowser
 import csv
 
-from core.Features import getOwnHostIP, getIP, getPageTitle, getEmailAndNumber
+from core.Features import getOwnHostIP
+from utils.FetchDataUrl import FetchData
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
+
+from views.LoadingProgress import LoadingProgress
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -98,13 +102,47 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     urls.append(col)
 
             # get total number of rows
-            print("Total no. of urls: %d" % (csvreader.line_num - 1))
+            print("Total no. of base urls: %d" % (csvreader.line_num - 1))
 
+        """
         # Iterating urls one by one and processing it
         self.data = {}
         for url in urls[1:]:
             print("Processing URL : ", url)
             self.data[url] = self.__fetchDataFromUrl(url)
+        """
+
+        self.inputItemCount = len(urls[1:])*2 # Multiplied with feature count
+        self.worker = FetchData(urls[1:])
+
+        self.thread = QThread()
+        self.worker.moveToThread(self.thread)  # move worker to thread
+
+        # end the thread running the worker
+        self.worker.finishedSignal.connect(self.thread.quit)
+        self.worker.finishedSignal.connect(
+            self.__finishFetchData)  # return data to workComplete
+
+        self.worker.finishedSignal.connect(
+            self.worker.deleteLater)  # delete the worker
+        self.thread.finished.connect(
+            self.thread.deleteLater)  # delete the thread
+        
+        # To register work progress
+        self.worker.urlStartSignal.connect(self.__updateCurrentUrl)
+        self.worker.reportProgress.connect(self.__updateLoadingProgress)
+        # self.worker.updateMaxSize.connect(self.__updateLoadingProgressSize)
+        self.__showLoadingProgress()
+
+        # Disable the window
+        self.importBtn.setEnabled(False)
+
+        self.thread.finished.connect(
+            lambda: self.importBtn.setEnabled(True)
+        )
+
+        self.thread.started.connect(self.worker.startFetching)
+        self.thread.start()
 
         """
         self.data = {
@@ -136,8 +174,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         }
         """
 
-        self.__loadTables()
-
+    """
     def __fetchDataFromUrl(self, url):
         # Process for given url
         emails, numbers = getEmailAndNumber(url)
@@ -150,6 +187,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         }
         # print(output)
         return output
+    """
+
+    def __showLoadingProgress(self):
+        """Show Loading Progress UI"""
+        self.progressBarWin = LoadingProgress(self, self.inputItemCount)
+        self.progressBarWin.show()
+
+    def __closeLoadingProgress(self):
+        """Close loading progress UI"""
+        self.progressBarWin.close()
+
+    def __updateLoadingProgress(self, progress):
+        """Update loading progress UI"""
+        if progress <= self.inputItemCount:
+            self.progressBarWin.updateProgressBar(progress)
+
+    # def __updateLoadingProgressSize(self, size):
+    #     self.progressBarWin.updateProgressBarSize(size)
+
+    def __updateCurrentUrl(self, url):
+        """Update Current Url"""
+        self.progressBarWin.updateCurrentUrl(url)
+        
+    def __finishFetchData(self, data):
+        self.__closeLoadingProgress()
+        self.data = data
+        self.__loadTables()
+
 
     def __loadTables(self, ):
         print("Loading Table Contents ...")
@@ -181,6 +246,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __insertRowToTopTable(self, url, title, ip):
         rowPosition = self.TopTW.rowCount()
         self.TopTW.insertRow(rowPosition)
+
+
+
 
         self.TopTW.setItem(
             rowPosition, 0, QtWidgets.QTableWidgetItem(str(url)))

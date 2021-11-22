@@ -91,6 +91,9 @@ def getIP(host):
     host = host.replace(starter1, '')
     host = host.replace(starter2, '')
 
+    if host.find('/') != -1:
+        host = host[:host.find('/')]
+
     ip = None
     try:
         # print(f'IP of {host} is {s.gethostbyname(host)}')
@@ -119,3 +122,45 @@ def getPageTitle(url):
         pageTitle = "No page title found"
 
     return pageTitle
+
+
+def isDomainUrl(src, dest):
+    """Checks if src and dest belongs to same parent domain"""
+    # Get the domain from src and dest.
+    starter1 = "https://www."
+    starter2 = "https://"
+
+    # Getting host from src
+    src = src.replace(starter1, '')
+    src = src.replace(starter2, '')
+
+    if src.find('/') != -1:
+        src = src[:src.find('/')]
+
+    # Getting host from dest
+    dest = dest.replace(starter1, '')
+    dest = dest.replace(starter2, '')
+
+    if dest.find('/') != -1:
+        dest = dest[:dest.find('/')]
+
+    if src == dest:
+        return True
+
+    return False
+
+
+def getAllUrls(url):
+    """Returns all the suburls"""
+    subUrls = []
+    grab = requests.get(url)
+    soup = BeautifulSoup(grab.text, 'html.parser')
+    for link in soup.find_all("a"):
+        subUrl = link.get('href')
+        if subUrl and isDomainUrl(url, subUrl):
+                subUrls.append(subUrl)
+    
+    return subUrls
+
+
+# print(getAllUrls("https://hybrique.com"))
