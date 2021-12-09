@@ -52,6 +52,50 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Setup System Monitoring
         self.__setupSystemMonitoring()
 
+    def __connectSignalSlots(self, ):
+        # Connecting clicks
+        self.importBtn.clicked.connect(self.__chooseDialog)
+        self.developedMsgLbl.mousePressEvent = self.__openGitHubRepo
+        self.openLiveNetworkAnalyser.clicked.connect(
+            self.__openNetworkAnalyserPage)
+        self.openWebScrapper.clicked.connect(self.__openWebScrapperPage)
+        self.openLiveSystemMonitoring.clicked.connect(
+            self.__openSystemMonitoringPage)
+
+    def __openNetworkAnalyserPage(self, ):
+        self.stackedWidget.setCurrentWidget(self.NetworkAnalyserPage)
+
+    def __openWebScrapperPage(self, ):
+        self.stackedWidget.setCurrentWidget(self.WebScrapperPage)
+
+    def __openSystemMonitoringPage(self, ):
+        self.stackedWidget.setCurrentWidget(self.SystemMonitorPage)
+
+    def __openHomePage(self, ):
+        self.stackedWidget.setCurrentWidget(self.HomePage)
+
+    def __setHostNameIP(self, ):
+        hostname, IPAddr = getOwnHostIP()
+
+        self.hostNameLbl.setText(hostname)
+        self.IPLbl.setText(IPAddr)
+
+    def __openGitHubRepo(self, event):
+        webbrowser.open_new('https://github.com/MoonPengu/WebScrapper')
+
+
+    """
+    ### Network Analyser -------- (Start)
+    """
+    
+    """
+    ### Network Analyser -------- (End)
+    """
+
+    """
+    ### System Monitoring -------- (Start)
+    """
+
     def __setupSystemMonitoring(self, ):
         """Seting up system monitoring"""
         # self.ui = uic.loadUi("main.ui", self)
@@ -264,34 +308,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # APPLY STYLESHEET WITH NEW VALUES
         widget.setStyleSheet(newStylesheet)
+    
+    """
+    ### System Monitoring -------- (End)
+    """
 
-    def __connectSignalSlots(self, ):
-        # Connecting clicks
-        self.importBtn.clicked.connect(self.__chooseDialog)
-        self.developedMsgLbl.mousePressEvent = self.__openGitHubRepo
-        self.openLiveNetworkAnalyser.clicked.connect(
-            self.__openNetworkAnalyserPage)
-        self.openWebScrapper.clicked.connect(self.__openWebScrapperPage)
-        self.openLiveSystemMonitoring.clicked.connect(
-            self.__openSystemMonitoringPage)
-
-    def __openNetworkAnalyserPage(self, ):
-        self.stackedWidget.setCurrentWidget(self.NetworkAnalyserPage)
-
-    def __openWebScrapperPage(self, ):
-        self.stackedWidget.setCurrentWidget(self.WebScrapperPage)
-
-    def __openSystemMonitoringPage(self, ):
-        self.stackedWidget.setCurrentWidget(self.SystemMonitorPage)
-
-    def __openHomePage(self, ):
-        self.stackedWidget.setCurrentWidget(self.HomePage)
-
-    def __setHostNameIP(self, ):
-        hostname, IPAddr = getOwnHostIP()
-
-        self.hostNameLbl.setText(hostname)
-        self.IPLbl.setText(IPAddr)
+    """
+    ### Web Scrapper -------- (Start)
+    """
 
     def __configureTables(self, ):
         # Setting table widths
@@ -323,9 +347,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.TopTW.setRowCount(0)
         self.EmailTW.setRowCount(0)
         self.NumberTW.setRowCount(0)
-
-    def __openGitHubRepo(self, event):
-        webbrowser.open_new('https://github.com/MoonPengu/WebScrapper')
 
     def __chooseDialog(self, ):
         path = QtWidgets.QFileDialog.getOpenFileName(self, 'Choose a csv containing list of URLs', '',
@@ -526,7 +547,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             rowPosition, 0, QtWidgets.QTableWidgetItem(str(url)))
         self.NumberTW.setItem(
             rowPosition, 1, QtWidgets.QTableWidgetItem(str(number)))
-
+    
+    """
+    ### Web Scrapper -------- (End)
+    """
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

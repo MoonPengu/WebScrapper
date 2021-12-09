@@ -332,6 +332,9 @@ class Ui_MainWindow(object):
         self.openLiveNetworkAnalyser.setStyleSheet("font: 10pt \"MS Shell Dlg 2\";\n"
 "color: rgb(0, 0, 0);\n"
 "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(195, 146, 255, 255), stop:1 rgba(255, 255, 255, 255))")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/grommet-icons_shield-security_light.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.openLiveNetworkAnalyser.setIcon(icon)
         self.openLiveNetworkAnalyser.setObjectName("openLiveNetworkAnalyser")
         self.verticalLayout_6.addWidget(self.openLiveNetworkAnalyser)
         self.openWebScrapper = QtWidgets.QPushButton(self.frame_15)
@@ -344,6 +347,9 @@ class Ui_MainWindow(object):
         self.openWebScrapper.setStyleSheet("font: 10pt \"MS Shell Dlg 2\";\n"
 "color: rgb(0, 0, 0);\n"
 "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(154, 171, 248, 255), stop:1 rgba(255, 255, 255, 255))")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/icons/grommet-icons_language_light.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.openWebScrapper.setIcon(icon1)
         self.openWebScrapper.setObjectName("openWebScrapper")
         self.verticalLayout_6.addWidget(self.openWebScrapper)
         self.openLiveSystemMonitoring = QtWidgets.QPushButton(self.frame_15)
@@ -356,6 +362,9 @@ class Ui_MainWindow(object):
         self.openLiveSystemMonitoring.setStyleSheet("font: 10pt \"MS Shell Dlg 2\";\n"
 "color: rgb(0, 0, 0);\n"
 "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(103, 212, 236, 255), stop:1 rgba(255, 255, 255, 255))")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(":/icons/ic_outline-room-preferences_light.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.openLiveSystemMonitoring.setIcon(icon2)
         self.openLiveSystemMonitoring.setObjectName("openLiveSystemMonitoring")
         self.verticalLayout_6.addWidget(self.openLiveSystemMonitoring)
         self.verticalLayout_5.addWidget(self.frame_15, 0, QtCore.Qt.AlignTop)
@@ -690,9 +699,9 @@ class Ui_MainWindow(object):
         self.label_5.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:11pt;\">Log Analser</span></p></body></html>"))
         self.label_4.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:11pt;\">Click Rate</span></p></body></html>"))
         self.label_6.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:48pt;\">Network Analyser ☠️</span></p></body></html>"))
-        self.openLiveNetworkAnalyser.setText(_translate("MainWindow", "  Live Network Analyser  "))
-        self.openWebScrapper.setText(_translate("MainWindow", "  Web Scrapper    "))
-        self.openLiveSystemMonitoring.setText(_translate("MainWindow", "  Live System Monitoring  "))
+        self.openLiveNetworkAnalyser.setText(_translate("MainWindow", "Live Network Analyser"))
+        self.openWebScrapper.setText(_translate("MainWindow", "Web Scrapper"))
+        self.openLiveSystemMonitoring.setText(_translate("MainWindow", " Live System Monitoring"))
         self.labelAplicationName_3.setText(_translate("MainWindow", "<strong>RAM</strong> USAGE"))
         self.labelCredits_3.setText(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
         self.labelPercentageRAM.setText(_translate("MainWindow", "<p align=\"center\"><span style=\" font-size:50pt;\">25</span><span style=\" font-size:40pt; vertical-align:super;\">%</span></p>"))
@@ -711,3 +720,4 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">Developed with </span><span style=\" font-family:\'apple color emoji\',\'segoe ui emoji\',\'noto color emoji\',\'android emoji\',\'emojisymbols\',\'emojione mozilla\',\'twemoji mozilla\',\'segoe ui symbol\'; font-size:12pt; color:#000000;\">❤️  </span><span style=\" font-size:12pt;\">by Shreya and Tanusha</span></p></body></html>"))
         self.IPLbl.setText(_translate("MainWindow", "<html><head/><body><p>192.168.43.54</p></body></html>"))
+import icons_rc
