@@ -13,3 +13,4 @@ dist/
 **/dist/
 *.spec
 *.exe
+*test.*
