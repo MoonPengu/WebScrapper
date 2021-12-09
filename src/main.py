@@ -61,18 +61,44 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.openWebScrapper.clicked.connect(self.__openWebScrapperPage)
         self.openLiveSystemMonitoring.clicked.connect(
             self.__openSystemMonitoringPage)
+        
+        self.homeBtn.clicked.connect(
+            self.__openHomePage)
+
+        self.liveNAtn.clicked.connect(
+            self.__openNetworkAnalyserPage)
+
+        self.webScrapperBtn.clicked.connect(
+            self.__openWebScrapperPage)
+
+        self.liveSMBtn.clicked.connect(
+            self.__openSystemMonitoringPage)
+
+    def __enableAll(self,):
+        self.homeBtn.setEnabled(True)
+        self.liveNAtn.setEnabled(True)
+        self.webScrapperBtn.setEnabled(True)
+        self.liveSMBtn.setEnabled(True)
 
     def __openNetworkAnalyserPage(self, ):
         self.stackedWidget.setCurrentWidget(self.NetworkAnalyserPage)
+        self.__enableAll()
+        self.liveNAtn.setEnabled(False)
 
     def __openWebScrapperPage(self, ):
         self.stackedWidget.setCurrentWidget(self.WebScrapperPage)
+        self.__enableAll()
+        self.webScrapperBtn.setEnabled(False)
 
     def __openSystemMonitoringPage(self, ):
         self.stackedWidget.setCurrentWidget(self.SystemMonitorPage)
+        self.__enableAll()
+        self.liveSMBtn.setEnabled(False)
 
     def __openHomePage(self, ):
         self.stackedWidget.setCurrentWidget(self.HomePage)
+        self.__enableAll()
+        self.homeBtn.setEnabled(False)
 
     def __setHostNameIP(self, ):
         hostname, IPAddr = getOwnHostIP()
@@ -87,7 +113,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     """
     ### Network Analyser -------- (Start)
     """
-    
+
+
     """
     ### Network Analyser -------- (End)
     """
@@ -208,14 +235,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton.setEnabled(False)
         self.pushButton_2.setEnabled(True)
         self.pushButton.setStyleSheet(
-            "QPushButton"
-            "{"
-            "background-color : qlineargradient(spread:pad, x1:0, y1:0, x2:0.963158, y2:0.006, stop:0.477528 rgba(150, 74, 255, 255), stop:0.926966 rgba(50, 170, 236, 254));"
-            "}"
-            "QPushButton"
-            "{"
-            "color : white;"
-            "}"
+            """
+            font: 75 10pt "MS Shell Dlg 2";
+            color: black;
+            background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(103, 212, 236, 255), stop:1 rgba(255, 255, 255, 255))
+            """
         )
         self.pushButton_2.setStyleSheet(
             "QPushButton"
@@ -236,17 +260,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_2.setEnabled(False)
         self.pushButton.setEnabled(True)
         self.pushButton_2.setStyleSheet(
-            "QPushButton" "{" "background-color : lightblue;" "}"
+            """
+            font: 75 10pt "MS Shell Dlg 2";
+            background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(195, 146, 255, 255), stop:1 rgba(255, 255, 255, 255));
+            color:black;
+            """
         )
         self.pushButton.setStyleSheet(
-            "QPushButton"
-            "{"
-            "background-color : rgba(85, 170, 255, 255);"
-            "}"
-            "QPushButton"
-            "{"
-            "color : white;"
-            "}"
+            "QPushButton" "{" "background-color : lightblue;" "}"
         )
 
     def set_plotdata(self, name, data_x, data_y):
