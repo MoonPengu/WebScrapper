@@ -8,7 +8,7 @@ import webbrowser
 import csv
 
 from core.Features import getOwnHostIP
-from utils.FetchDataUrl import FetchData
+from utils.FetchDataUrl import FetchData, NetworkAnalyser
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
 import sys
@@ -39,7 +39,6 @@ matplotlib.use('Qt5Agg')
 
 from views.LoadingProgress import LoadingProgress
 
-CHROME_DRIVER_PATH = "./utils/chromedriver.exe"
 START_URL = "https://www.google.com"
 
 class MplCanvas(FigureCanvas):
@@ -99,6 +98,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.liveSMBtn.clicked.connect(
             self.__openSystemMonitoringPage)
 
+        self.startAnalyserBtn.clicked.connect(self.__configureNetworkAnalyser)
+
     def __enableAll(self,):
         self.homeBtn.setEnabled(True)
         self.liveNAtn.setEnabled(True)
@@ -109,7 +110,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(self.NetworkAnalyserPage)
         self.__enableAll()
         self.liveNAtn.setEnabled(False)
-        self.__configureNetworkAnalyser()
 
     def __openWebScrapperPage(self, ):
         self.stackedWidget.setCurrentWidget(self.WebScrapperPage)
@@ -149,23 +149,110 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # self.clickRateCanvas.setStyleSheet("background-color:transparent;")
         self.clickRateGridLayout.addWidget(self.clickRateCanvas, 0, 0, 1, 3)
 
-    def __configureNetworkAnalyser(self, ):
-        # naw = NetworkAnalyserWindow(self)
-        # naw.show()
-
-        # self.clickCountCanvas = MplCanvas(self, width=5, height=4, dpi=100)
-        # # self.gridLayout = QGridLayout()
-
-        # self.clickCountGridLayout.addWidget(self.clickCountCanvas, 0, 0, 1, 3)
-
-        # layout = QtWidgets.QVBoxLayout()
-        # layout.addWidget(self.gridLayout)
-        # self.setLayout(c)
-
-        # self.setCentralWidget(self.gridLayout)
         
-        self.driver = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH)
-        self.driver.get(START_URL)
+        self.oldUrl = START_URL
+        
+        self.urlLog = {
+            self.oldUrl: {
+                "index": 0,
+                "click": 1
+            }
+        }
+
+        self.lastIndex = 0
+        self.maxClicks = 1
+
+        # print('[+] Starting Log Analyser!')
+        # print()
+
+        self.xdata = [self.oldUrl]
+        self.ydata = [1]
+
+        self.clickCountCanvas.axes.set_xlim([0, 0])
+        self.clickCountCanvas.axes.set_ylim([0, 2])
+
+        # We need to store a reference to the plotted line
+        # somewhere, so we can apply the new data to it.
+        plot_refs = self.clickCountCanvas.axes.plot(self.xdata, self.ydata, 'b')
+        self._plot_ref = plot_refs[0]
+
+
+    def __configureNetworkAnalyser(self, ):
+        self.netAnalyserWorker = NetworkAnalyser(self.oldUrl)
+
+        self.NAthread = QThread()
+        self.netAnalyserWorker.moveToThread(self.NAthread)  # move worker to thread
+
+        # end the thread running the worker
+        self.netAnalyserWorker.finishedSignal.connect(self.NAthread.quit)
+        self.netAnalyserWorker.finishedSignal.connect(
+            self.__finishNetworkAnalyser)  # return data to workComplete
+
+        self.netAnalyserWorker.finishedSignal.connect(
+            self.netAnalyserWorker.deleteLater)  # delete the worker
+        self.NAthread.finished.connect(
+            self.NAthread.deleteLater)  # delete the thread
+
+        # To register work progress
+        self.netAnalyserWorker.updateSignal.connect(self.__updateClickUrl)
+
+        # Disable the window
+        self.startAnalyserBtn.setEnabled(False)
+
+        self.NAthread.finished.connect(
+            lambda: self.startAnalyserBtn.setEnabled(True)
+        )
+
+        self.NAthread.started.connect(self.netAnalyserWorker.startWebDriver)
+        self.NAthread.start()
+
+    def __updateClickUrl(self, currUrl):
+        if currUrl and currUrl != self.oldUrl:
+            print("Change detected : ")
+            print(self.oldUrl + " ----> " + currUrl)
+            print()
+
+            if currUrl not in self.urlLog:
+                self.urlLog[currUrl] = {
+                    "index": self.lastIndex,
+                    "click":1
+                }
+
+                # Increase x-range
+                self.lastIndex += 1
+                self.clickCountCanvas.axes.set_xlim([0, self.lastIndex])
+
+                # Add new x-value and y-value
+                self.xdata += [currUrl]
+                self.ydata += [1]
+            else:
+                self.urlLog[currUrl]["click"] += 1
+
+                if self.urlLog[currUrl]["click"] > self.maxClicks:
+                    self.maxClicks = self.urlLog[currUrl]["click"]
+
+                    # Increase y-range
+                    self.clickCountCanvas.axes.set_ylim([0, self.maxClicks + 1])
+                
+                # Increase y-value
+                self.ydata[self.urlLog[currUrl]["index"]] = self.urlLog[currUrl]["click"]
+                
+            self.oldUrl = currUrl
+
+            self._plot_ref.set_xdata(self.xdata)
+            self._plot_ref.set_ydata(self.ydata)
+
+            # Trigger the canvas to update and redraw.
+            self.clickCountCanvas.draw()
+
+
+    def __finishNetworkAnalyser(self, data):
+        if data == 1:
+            print("Thread ends !")
+        
+        """
+        # self.driver = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH)
+        # self.driver.get(START_URL)
 
         print("Start URL : ")
         print(self.driver.current_url)
@@ -251,6 +338,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         # Switch to the active window
         self.driver.switch_to.window(self.driver.window_handles[-1])
+        """
     """
     ### Network Analyser -------- (End)
     """

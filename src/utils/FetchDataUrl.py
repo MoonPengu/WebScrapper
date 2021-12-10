@@ -1,5 +1,9 @@
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 from core.Features import getIP, getPageTitle, getEmailAndNumber, getAllUrls
+import time
+from selenium import webdriver
+
+CHROME_DRIVER_PATH = "./utils/chromedriver.exe"
 
 class FetchData(QObject):
     """Fetch data from URL"""
@@ -76,3 +80,31 @@ class FetchData(QObject):
             self.reportProgress.emit(self.progress)
         
         self.finishedSignal.emit(self.output)
+
+
+class NetworkAnalyser(QObject):
+    """Network Analyser"""
+    updateSignal = pyqtSignal(str)
+    finishedSignal = pyqtSignal(int)
+
+    def __init__(self, startUrl):
+        super().__init__()
+        self.startUrl = startUrl
+
+    def startWebDriver(self, ):
+        self.driver = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH)
+        self.driver.get(self.startUrl)
+        self.__observeClicks()
+
+    def __observeClicks(self, ):
+        while True:
+            time.sleep(0.1)
+            try:
+                currUrl = self.driver.current_url
+                self.updateSignal.emit(currUrl)
+                self.driver.switch_to.window(self.driver.window_handles[-1])
+            except:
+                break
+
+
+        self.finishedSignal.emit(1)        
