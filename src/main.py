@@ -1,3 +1,4 @@
+from views.LoadingProgress import LoadingProgress
 from PyQt5 import QtWidgets
 import sys
 from PyQt5.QtWidgets import QApplication
@@ -7,7 +8,7 @@ from ui.mainWindow import Ui_MainWindow
 import webbrowser
 import csv
 
-from core.Features import getOwnHostIP
+from core.Features import getIP, getOwnHostIP, getPageTitle
 from utils.FetchDataUrl import FetchData, NetworkAnalyser
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
@@ -37,14 +38,14 @@ from selenium import webdriver
 import matplotlib
 matplotlib.use('Qt5Agg')
 
-from views.LoadingProgress import LoadingProgress
 
 START_URL = "https://www.google.com"
+
 
 class MplCanvas(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi, edgecolor = "black")
+        fig = Figure(figsize=(width, height), dpi=dpi, edgecolor="black")
         self.axes = fig.add_subplot(111, facecolor="black")
         # self.axes.set_xticklabels(labels = xlabels, rotation=45)
         self.axes.tick_params(axis="x", labelrotation=45)
@@ -70,11 +71,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Connecting signal slots
         self.__connectSignalSlots()
 
-        # Setup Network Analyser
-        self.__setupNetworkAnalyser()
-
         # Setup System Monitoring
         self.__setupSystemMonitoring()
+
+        # Configure NA (Network Analyser) Tables
+        self.__configureNATables()
+
+        # Setup Network Analyser
+        self.__setupNetworkAnalyser()
 
     def __connectSignalSlots(self, ):
         # Connecting clicks
@@ -85,7 +89,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.openWebScrapper.clicked.connect(self.__openWebScrapperPage)
         self.openLiveSystemMonitoring.clicked.connect(
             self.__openSystemMonitoringPage)
-        
+
         self.homeBtn.clicked.connect(
             self.__openHomePage)
 
@@ -106,7 +110,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.webScrapperBtn.setEnabled(True)
         self.liveSMBtn.setEnabled(True)
 
-    def __openNetworkAnalyserPage(self, ): 
+    def __openNetworkAnalyserPage(self, ):
         self.stackedWidget.setCurrentWidget(self.NetworkAnalyserPage)
         self.__enableAll()
         self.liveNAtn.setEnabled(False)
@@ -135,7 +139,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __openGitHubRepo(self, event):
         webbrowser.open_new('https://github.com/MoonPengu/WebScrapper')
 
-
     """
     ### Network Analyser -------- (Start)
     """
@@ -149,9 +152,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # self.clickRateCanvas.setStyleSheet("background-color:transparent;")
         self.clickRateGridLayout.addWidget(self.clickRateCanvas, 0, 0, 1, 3)
 
-        
         self.oldUrl = START_URL
-        
+
         self.urlLog = {
             self.oldUrl: {
                 "index": 0,
@@ -159,13 +161,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             }
         }
 
-        self.lastIndex = 0
+        self.__insertRowToLogTable(0, self.oldUrl, getPageTitle(self.oldUrl), getIP(self.oldUrl), 1)
+
+        self.lastIndex = 1
         self.maxClicks = 1
 
         # print('[+] Starting Log Analyser!')
         # print()
 
-        self.xdata = [self.oldUrl]
+        self.xdata = [0]
         self.ydata = [1]
 
         self.clickCountCanvas.axes.set_xlim([0, 0])
@@ -173,15 +177,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # We need to store a reference to the plotted line
         # somewhere, so we can apply the new data to it.
-        plot_refs = self.clickCountCanvas.axes.plot(self.xdata, self.ydata, 'b')
+        plot_refs = self.clickCountCanvas.axes.plot(
+            self.xdata, self.ydata, 'b')
         self._plot_ref = plot_refs[0]
-
 
     def __configureNetworkAnalyser(self, ):
         self.netAnalyserWorker = NetworkAnalyser(self.oldUrl)
 
         self.NAthread = QThread()
-        self.netAnalyserWorker.moveToThread(self.NAthread)  # move worker to thread
+        self.netAnalyserWorker.moveToThread(
+            self.NAthread)  # move worker to thread
 
         # end the thread running the worker
         self.netAnalyserWorker.finishedSignal.connect(self.NAthread.quit)
@@ -206,7 +211,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.NAthread.started.connect(self.netAnalyserWorker.startWebDriver)
         self.NAthread.start()
 
-    def __updateClickUrl(self, currUrl):
+    def __updateClickUrl(self, data):
+        currUrl = data["curr-url"]
+        title = data["title"]
+        ip = data["ip"]
+
         if currUrl and currUrl != self.oldUrl:
             print("Change detected : ")
             print(self.oldUrl + " ----> " + currUrl)
@@ -215,28 +224,40 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if currUrl not in self.urlLog:
                 self.urlLog[currUrl] = {
                     "index": self.lastIndex,
-                    "click":1
+                    "click": 1
                 }
 
+                # Insert new row to log table
+                self.__insertRowToLogTable(
+                    self.lastIndex, currUrl, title, ip, 1)
+
                 # Increase x-range
-                self.lastIndex += 1
                 self.clickCountCanvas.axes.set_xlim([0, self.lastIndex])
 
-                # Add new x-value and y-value
-                self.xdata += [currUrl]
+                # Add new x-value and y-value to click count graph
+                self.xdata += [self.lastIndex]
                 self.ydata += [1]
+
+                self.lastIndex += 1
             else:
                 self.urlLog[currUrl]["click"] += 1
 
+                # Update log table
+                self.__updateLogTable(
+                    self.urlLog[currUrl]["index"], self.urlLog[currUrl]["click"])
+
+                # Update click count graph
                 if self.urlLog[currUrl]["click"] > self.maxClicks:
                     self.maxClicks = self.urlLog[currUrl]["click"]
 
                     # Increase y-range
-                    self.clickCountCanvas.axes.set_ylim([0, self.maxClicks + 1])
-                
+                    self.clickCountCanvas.axes.set_ylim(
+                        [0, self.maxClicks + 1])
+
                 # Increase y-value
-                self.ydata[self.urlLog[currUrl]["index"]] = self.urlLog[currUrl]["click"]
-                
+                self.ydata[self.urlLog[currUrl]["index"]
+                           ] = self.urlLog[currUrl]["click"]
+
             self.oldUrl = currUrl
 
             self._plot_ref.set_xdata(self.xdata)
@@ -245,100 +266,47 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Trigger the canvas to update and redraw.
             self.clickCountCanvas.draw()
 
-
     def __finishNetworkAnalyser(self, data):
         if data == 1:
             print("Thread ends !")
-        
-        """
-        # self.driver = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH)
-        # self.driver.get(START_URL)
 
-        print("Start URL : ")
-        print(self.driver.current_url)
-        print()
+    def __configureNATables(self, ):
+        # Setting table widths
+        logsTW = self.logsTW.horizontalHeader()
+        logsTW.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        logsTW.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        logsTW.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        logsTW.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+        logsTW.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
 
-        self.oldUrl = self.driver.current_url
-        
-        self.urlLog = {
-            self.oldUrl: {
-                "index": 0,
-                "click": 1
-            }
-        }
+        # Disable Table Cell Editing
+        self.logsTW.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 
-        self.lastIndex = 0
-        self.maxClicks = 1
+        # Clearing all elements
+        self.__clearAllNATables()
 
-        print('[+] Starting Log Analyser!')
-        print()
+    def __clearAllNATables(self, ):
+        # Clearing Tables
+        self.logsTW.setRowCount(0)
 
-        self.xdata = [self.oldUrl]
-        self.ydata = [1]
+    def __updateLogTable(self, index, newClickCount):
+        self.logsTW.item(index, 4).setText(str(newClickCount))
 
-        self.clickCountCanvas.axes.set_xlim([0, 0])
-        self.clickCountCanvas.axes.set_ylim([0, 2])
+    def __insertRowToLogTable(self, index, url, title, ip, clicks):
+        rowPosition = self.logsTW.rowCount()
+        self.logsTW.insertRow(rowPosition)
 
-        # We need to store a reference to the plotted line
-        # somewhere, so we can apply the new data to it.
-        plot_refs = self.clickCountCanvas.axes.plot(self.xdata, self.ydata, 'r')
-        self._plot_ref = plot_refs[0]
+        self.logsTW.setItem(
+            rowPosition, 0, QtWidgets.QTableWidgetItem(str(index)))
+        self.logsTW.setItem(
+            rowPosition, 1, QtWidgets.QTableWidgetItem(str(url)))
+        self.logsTW.setItem(
+            rowPosition, 2, QtWidgets.QTableWidgetItem(str(title)))
+        self.logsTW.setItem(
+            rowPosition, 3, QtWidgets.QTableWidgetItem(str(ip)))
+        self.logsTW.setItem(
+            rowPosition, 4, QtWidgets.QTableWidgetItem(str(clicks)))
 
-        # self.update_plot()
-
-        self.show()
-
-        # Setup a timer to trigger the redraw by calling update_plot.
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(100)
-        self.timer.timeout.connect(self.updateClickCountPlot)
-        self.timer.start()
-
-    def updateClickCountPlot(self):
-        self.currUrl = self.driver.current_url
-
-        if self.currUrl and self.currUrl != self.oldUrl:
-            print("Change detected : ")
-            print(self.oldUrl + " ----> " + self.currUrl)
-            print()
-
-            if self.currUrl not in self.urlLog:
-                self.urlLog[self.currUrl] = {
-                    "index": self.lastIndex,
-                    "click":1
-                }
-
-                # Increase x-range
-                self.lastIndex += 1
-                self.clickCountCanvas.axes.set_xlim([0, self.lastIndex])
-
-                # Add new x-value and y-value
-                self.xdata += [self.currUrl]
-                self.ydata += [1]
-            else:
-                self.urlLog[self.currUrl]["click"] += 1
-
-                if self.urlLog[self.currUrl]["click"] > self.maxClicks:
-                    self.maxClicks = self.urlLog[self.currUrl]["click"]
-
-                    # Increase y-range
-                    self.clickCountCanvas.axes.set_ylim([0, self.maxClicks + 1])
-                
-                # Increase y-value
-                self.ydata[self.urlLog[self.currUrl]["index"]] = self.urlLog[self.currUrl]["click"]
-                
-            self.oldUrl = self.currUrl
-
-            self._plot_ref.set_xdata(self.xdata)
-            self._plot_ref.set_ydata(self.ydata)
-
-            # Trigger the canvas to update and redraw.
-            self.clickCountCanvas.draw()
-
-        
-        # Switch to the active window
-        self.driver.switch_to.window(self.driver.window_handles[-1])
-        """
     """
     ### Network Analyser -------- (End)
     """
@@ -553,7 +521,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # APPLY STYLESHEET WITH NEW VALUES
         widget.setStyleSheet(newStylesheet)
-    
+
     """
     ### System Monitoring -------- (End)
     """
@@ -697,21 +665,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         }
         """
 
-    """
-    def __fetchDataFromUrl(self, url):
-        # Process for given url
-        emails, numbers = getEmailAndNumber(url)
-        output = {
-            "url": url,
-            "title": getPageTitle(url),
-            "ip": getIP(url),
-            "emails": list(emails),
-            "numbers": list(numbers)
-        }
-        # print(output)
-        return output
-    """
-
     def __showLoadingProgress(self):
         """Show Loading Progress UI"""
         self.progressBarWin = LoadingProgress(self, self.inputItemCount)
@@ -725,9 +678,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """Update loading progress UI"""
         if progress <= self.inputItemCount:
             self.progressBarWin.updateProgressBar(progress)
-
-    # def __updateLoadingProgressSize(self, size):
-    #     self.progressBarWin.updateProgressBarSize(size)
 
     def __updateCurrentUrl(self, url):
         """Update Current Url"""
@@ -792,10 +742,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             rowPosition, 0, QtWidgets.QTableWidgetItem(str(url)))
         self.NumberTW.setItem(
             rowPosition, 1, QtWidgets.QTableWidgetItem(str(number)))
-    
+
     """
     ### Web Scrapper -------- (End)
     """
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

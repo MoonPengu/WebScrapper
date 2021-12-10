@@ -607,9 +607,18 @@ background-color: rgb(75, 155, 241);</string>
               <layout class="QVBoxLayout" name="verticalLayout_16">
                <item>
                 <widget class="QTableWidget" name="logsTW">
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(230, 234, 255);</string>
+                 </property>
                  <property name="frameShape">
                   <enum>QFrame::NoFrame</enum>
                  </property>
+                 <attribute name="horizontalHeaderVisible">
+                  <bool>true</bool>
+                 </attribute>
+                 <attribute name="verticalHeaderVisible">
+                  <bool>false</bool>
+                 </attribute>
                  <column>
                   <property name="text">
                    <string>Index</string>

@@ -84,7 +84,7 @@ class FetchData(QObject):
 
 class NetworkAnalyser(QObject):
     """Network Analyser"""
-    updateSignal = pyqtSignal(str)
+    updateSignal = pyqtSignal(dict)
     finishedSignal = pyqtSignal(int)
 
     def __init__(self, startUrl):
@@ -101,7 +101,12 @@ class NetworkAnalyser(QObject):
             time.sleep(0.1)
             try:
                 currUrl = self.driver.current_url
-                self.updateSignal.emit(currUrl)
+                data = {
+                    "curr-url": currUrl,
+                    "title": getPageTitle(currUrl),
+                    "ip": getIP(currUrl)
+                }
+                self.updateSignal.emit(data)
                 self.driver.switch_to.window(self.driver.window_handles[-1])
             except:
                 break
