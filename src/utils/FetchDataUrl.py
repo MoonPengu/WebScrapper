@@ -87,11 +87,13 @@ class NetworkAnalyser(QObject):
     updateSignal = pyqtSignal(dict)
     finishedSignal = pyqtSignal(int)
 
-    def __init__(self, startUrl):
+    def __init__(self, startUrl, availableUrls):
         super().__init__()
         self.startUrl = startUrl
+        self.availableUrls = availableUrls
 
     def startWebDriver(self, ):
+        print("Starting Network Analyser ---")
         self.driver = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH)
         self.driver.get(self.startUrl)
         self.__observeClicks()
@@ -101,10 +103,17 @@ class NetworkAnalyser(QObject):
             time.sleep(0.1)
             try:
                 currUrl = self.driver.current_url
+                title = ""
+                ip = ""
+                if currUrl not in self.availableUrls:
+                    self.availableUrls.append(currUrl)
+                    title = getPageTitle(currUrl)
+                    ip = getIP(currUrl)
+
                 data = {
                     "curr-url": currUrl,
-                    "title": getPageTitle(currUrl),
-                    "ip": getIP(currUrl)
+                    "title": title,
+                    "ip": ip
                 }
                 self.updateSignal.emit(data)
                 self.driver.switch_to.window(self.driver.window_handles[-1])

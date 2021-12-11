@@ -182,7 +182,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self._plot_ref = plot_refs[0]
 
     def __configureNetworkAnalyser(self, ):
-        self.netAnalyserWorker = NetworkAnalyser(self.oldUrl)
+        self.netAnalyserWorker = NetworkAnalyser(self.oldUrl, list(self.urlLog.keys()))
 
         self.NAthread = QThread()
         self.netAnalyserWorker.moveToThread(
@@ -268,13 +268,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def __finishNetworkAnalyser(self, data):
         if data == 1:
-            print("Thread ends !")
+            print("Stopping Network Analyser - Thread ends !")
 
     def __configureNATables(self, ):
         # Setting table widths
         logsTW = self.logsTW.horizontalHeader()
         logsTW.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        logsTW.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        logsTW.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
         logsTW.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         logsTW.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
         logsTW.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
