@@ -18,12 +18,14 @@ from core.Features import getIP, getOwnHostIP, getPageTitle
 from ui.mainWindow import Ui_MainWindow
 from utils.FetchDataUrl import FetchData, NetworkAnalyser
 from views.LoadingProgress import LoadingProgress
+from datetime import datetime
 
 matplotlib.use('Qt5Agg')
 
 
 START_URL = "https://www.google.com"
 X_TRAFFIC_LIMIT = 10
+
 
 class MplCanvas(FigureCanvas):
 
@@ -124,6 +126,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     """
     ### Network Analyser -------- (Start)
     """
+    def __getCurrentTime(self, ):
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        return str(current_time)
 
     def __setupNetworkAnalyser(self, ):
         self.clickCountCanvas = MplCanvas(self, width=10, height=6, dpi=100)
@@ -143,13 +149,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             }
         }
 
-        self.__insertRowToLogTable(0, self.oldUrl, getPageTitle(self.oldUrl), getIP(self.oldUrl), 1)
+        self.__insertRowToLogTable(0, self.oldUrl, getPageTitle(
+            self.oldUrl), getIP(self.oldUrl), 1)
 
         self.lastIndex = 1
         self.maxClicks = 1
         self.maxTraffic = 1
         self.currObservationCount = 1
         self.currObservationList = [self.oldUrl]
+        self.observerLastIndex = 0
 
         # print('[+] Starting Log Analyser!')
         # print()
@@ -168,7 +176,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self._plot_ref = plot_refs[0]
 
         # For Click Rate Canvas --------------
-        self.clickRateXdata = [0]
+        self.clickRateXdata = [self.__getCurrentTime()]
         self.clickRateYdata = [1]
 
         self.clickRateCanvas.axes.set_xlim([0, 0])
@@ -178,9 +186,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.clickRateXdata, self.clickRateYdata, 'w')
         self.clickRate_plot_refs = _clickRate_plot_refs[0]
 
+        self.observerLastIndex += 1
 
     def __configureNetworkAnalyser(self, ):
-        self.netAnalyserWorker = NetworkAnalyser(self.oldUrl, list(self.urlLog.keys()))
+        self.netAnalyserWorker = NetworkAnalyser(
+            self.oldUrl, list(self.urlLog.keys()))
 
         self.NAthread = QThread()
         self.netAnalyserWorker.moveToThread(
@@ -210,7 +220,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.NAthread.start()
 
     def __updateClickUrl(self, data):
-        
+
         currUrl = data["curr-url"]
         title = data["title"]
         ip = data["ip"]
@@ -271,8 +281,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.currObservationCount += 1
         if self.currObservationCount >= 30:
             # Insert Data
-            newX = self.clickRateXdata[-1] + 1
-            self.clickRateXdata += [newX]
+            self.clickRateXdata += [self.__getCurrentTime()]
 
             newY = len(self.currObservationList)
             self.clickRateYdata += [newY]
@@ -280,14 +289,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if len(self.clickRateXdata) > X_TRAFFIC_LIMIT:
                 self.clickRateXdata.pop(0)
                 self.clickRateYdata.pop(0)
-            
+
             # Set Y Range
             if newY > self.maxTraffic:
                 self.maxTraffic = newY
             self.clickRateCanvas.axes.set_ylim([0, self.maxTraffic + 1])
 
             # Set X Range
-            self.clickRateCanvas.axes.set_xlim([max(0,newX - X_TRAFFIC_LIMIT + 1), newX])
+            self.clickRateCanvas.axes.set_xlim(
+                [max(0, self.observerLastIndex - X_TRAFFIC_LIMIT + 1), self.observerLastIndex])
 
             # Update x and y
             self.clickRate_plot_refs.set_xdata(self.clickRateXdata)
@@ -296,6 +306,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Update canvas
             self.clickRateCanvas.draw()
 
+            self.observerLastIndex += 1
             self.currObservationCount = 0
             self.currObservationList.clear()
 
