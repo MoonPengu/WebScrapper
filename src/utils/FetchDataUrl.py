@@ -7,6 +7,7 @@ from core.Features import getIP, getPageTitle, getEmailAndNumber, getAllUrls
 
 CHROME_DRIVER_PATH = "./utils/chromedriver.exe"
 
+
 class FetchData(QObject):
     """Fetch data from URL"""
     finishedSignal = pyqtSignal(dict)
@@ -18,7 +19,6 @@ class FetchData(QObject):
     def __init__(self, urls):
         super().__init__()
         self.urls = urls
-
 
     def __fetchDataFromUrl(self, url):
         # Process for given url
@@ -80,7 +80,7 @@ class FetchData(QObject):
 
             self.progress += 1
             self.reportProgress.emit(self.progress)
-        
+
         self.finishedSignal.emit(self.output)
 
 
@@ -122,5 +122,4 @@ class NetworkAnalyser(QObject):
             except:
                 break
 
-
-        self.finishedSignal.emit(1)        
+        self.finishedSignal.emit(1)

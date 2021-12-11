@@ -158,8 +158,8 @@ def getAllUrls(url):
     for link in soup.find_all("a"):
         subUrl = link.get('href')
         if subUrl and isDomainUrl(url, subUrl):
-                subUrls.append(subUrl)
-    
+            subUrls.append(subUrl)
+
     return subUrls
 
 

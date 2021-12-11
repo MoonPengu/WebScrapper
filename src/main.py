@@ -23,15 +23,14 @@ matplotlib.use('Qt5Agg')
 
 
 START_URL = "https://www.google.com"
-
+X_TRAFFIC_LIMIT = 10
 
 class MplCanvas(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi, edgecolor="black")
         self.axes = fig.add_subplot(111, facecolor="black")
-        # self.axes.set_xticklabels(labels = xlabels, rotation=45)
-        self.axes.tick_params(axis="x", labelrotation=45)
+        # self.axes.tick_params(axis="x", labelrotation=45)
         super(MplCanvas, self).__init__(fig)
 
 
@@ -148,10 +147,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.lastIndex = 1
         self.maxClicks = 1
+        self.maxTraffic = 1
+        self.currObservationCount = 1
+        self.currObservationList = [self.oldUrl]
 
         # print('[+] Starting Log Analyser!')
         # print()
 
+        # For Click Count Canvas --------------
         self.xdata = [0]
         self.ydata = [1]
 
@@ -161,8 +164,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # We need to store a reference to the plotted line
         # somewhere, so we can apply the new data to it.
         plot_refs = self.clickCountCanvas.axes.plot(
-            self.xdata, self.ydata, 'b')
+            self.xdata, self.ydata, 'r')
         self._plot_ref = plot_refs[0]
+
+        # For Click Rate Canvas --------------
+        self.clickRateXdata = [0]
+        self.clickRateYdata = [1]
+
+        self.clickRateCanvas.axes.set_xlim([0, 0])
+        self.clickRateCanvas.axes.set_ylim([0, 2])
+
+        _clickRate_plot_refs = self.clickRateCanvas.axes.plot(
+            self.clickRateXdata, self.clickRateYdata, 'w')
+        self.clickRate_plot_refs = _clickRate_plot_refs[0]
+
 
     def __configureNetworkAnalyser(self, ):
         self.netAnalyserWorker = NetworkAnalyser(self.oldUrl, list(self.urlLog.keys()))
@@ -195,6 +210,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.NAthread.start()
 
     def __updateClickUrl(self, data):
+        
         currUrl = data["curr-url"]
         title = data["title"]
         ip = data["ip"]
@@ -248,6 +264,40 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             # Trigger the canvas to update and redraw.
             self.clickCountCanvas.draw()
+
+        if currUrl not in self.currObservationList:
+            self.currObservationList.append(currUrl)
+
+        self.currObservationCount += 1
+        if self.currObservationCount >= 30:
+            # Insert Data
+            newX = self.clickRateXdata[-1] + 1
+            self.clickRateXdata += [newX]
+
+            newY = len(self.currObservationList)
+            self.clickRateYdata += [newY]
+
+            if len(self.clickRateXdata) > X_TRAFFIC_LIMIT:
+                self.clickRateXdata.pop(0)
+                self.clickRateYdata.pop(0)
+            
+            # Set Y Range
+            if newY > self.maxTraffic:
+                self.maxTraffic = newY
+            self.clickRateCanvas.axes.set_ylim([0, self.maxTraffic + 1])
+
+            # Set X Range
+            self.clickRateCanvas.axes.set_xlim([max(0,newX - X_TRAFFIC_LIMIT + 1), newX])
+
+            # Update x and y
+            self.clickRate_plot_refs.set_xdata(self.clickRateXdata)
+            self.clickRate_plot_refs.set_ydata(self.clickRateYdata)
+
+            # Update canvas
+            self.clickRateCanvas.draw()
+
+            self.currObservationCount = 0
+            self.currObservationList.clear()
 
     def __finishNetworkAnalyser(self, data):
         if data == 1:
