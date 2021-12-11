@@ -1,4 +1,4 @@
-# WebScrapper and Network Analyzer
+# WebScrapper and Network Analyzer 💻
 
 <img src="https://github.com/MoonPengu/WebScrapper/blob/main/Capture.PNG"/>
 
