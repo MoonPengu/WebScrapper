@@ -1,5 +1,12 @@
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+import time
+
+from PyQt5.QtCore import QObject, pyqtSignal
+from selenium import webdriver
+
 from core.Features import getIP, getPageTitle, getEmailAndNumber, getAllUrls
+
+CHROME_DRIVER_PATH = "./utils/chromedriver.exe"
+
 
 class FetchData(QObject):
     """Fetch data from URL"""
@@ -12,7 +19,6 @@ class FetchData(QObject):
     def __init__(self, urls):
         super().__init__()
         self.urls = urls
-
 
     def __fetchDataFromUrl(self, url):
         # Process for given url
@@ -74,5 +80,46 @@ class FetchData(QObject):
 
             self.progress += 1
             self.reportProgress.emit(self.progress)
-        
+
         self.finishedSignal.emit(self.output)
+
+
+class NetworkAnalyser(QObject):
+    """Network Analyser"""
+    updateSignal = pyqtSignal(dict)
+    finishedSignal = pyqtSignal(int)
+
+    def __init__(self, startUrl, availableUrls):
+        super().__init__()
+        self.startUrl = startUrl
+        self.availableUrls = availableUrls
+
+    def startWebDriver(self, ):
+        print("Starting Network Analyser ---")
+        self.driver = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH)
+        self.driver.get(self.startUrl)
+        self.__observeClicks()
+
+    def __observeClicks(self, ):
+        while True:
+            time.sleep(0.1)
+            try:
+                currUrl = self.driver.current_url
+                title = ""
+                ip = ""
+                if currUrl not in self.availableUrls:
+                    self.availableUrls.append(currUrl)
+                    title = getPageTitle(currUrl)
+                    ip = getIP(currUrl)
+
+                data = {
+                    "curr-url": currUrl,
+                    "title": title,
+                    "ip": ip
+                }
+                self.updateSignal.emit(data)
+                self.driver.switch_to.window(self.driver.window_handles[-1])
+            except:
+                break
+
+        self.finishedSignal.emit(1)
