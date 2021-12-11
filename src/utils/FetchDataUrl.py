@@ -1,7 +1,9 @@
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
-from core.Features import getIP, getPageTitle, getEmailAndNumber, getAllUrls
 import time
+
+from PyQt5.QtCore import QObject, pyqtSignal
 from selenium import webdriver
+
+from core.Features import getIP, getPageTitle, getEmailAndNumber, getAllUrls
 
 CHROME_DRIVER_PATH = "./utils/chromedriver.exe"
 

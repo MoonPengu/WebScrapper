@@ -1,41 +1,24 @@
-from views.LoadingProgress import LoadingProgress
-from PyQt5 import QtWidgets
-import sys
-from PyQt5.QtWidgets import QApplication
-
-from ui.mainWindow import Ui_MainWindow
-
-import webbrowser
 import csv
-
-from core.Features import getIP, getOwnHostIP, getPageTitle
-from utils.FetchDataUrl import FetchData, NetworkAnalyser
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
-
-import sys
 import platform
-import os
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import (QCoreApplication, QPropertyAnimation, QDate, QDateTime,
-                          QMetaObject, QObject, QPoint, QRect, QSize, QTime, QUrl, Qt, QEvent)
-from PyQt5.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase,
-                         QIcon, QKeySequence, QLinearGradient, QPalette, QPainter, QPixmap, QRadialGradient)
-from PyQt5.QtWidgets import *
-from PyQt5 import uic
-import psutil
-from pyqtgraph import PlotWidget
-import pyqtgraph as pg
-from pathlib import Path
-import numpy as np
+import sys
+import webbrowser
 from collections import deque
 
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5 import QtCore, QtWidgets
-import sys
-from selenium import webdriver
-
 import matplotlib
+import psutil
+import pyqtgraph as pg
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import *
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from pyqtgraph import PlotWidget
+
+from core.Features import getIP, getOwnHostIP, getPageTitle
+from ui.mainWindow import Ui_MainWindow
+from utils.FetchDataUrl import FetchData, NetworkAnalyser
+from views.LoadingProgress import LoadingProgress
+
 matplotlib.use('Qt5Agg')
 
 
