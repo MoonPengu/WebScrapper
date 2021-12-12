@@ -1,5 +1,7 @@
 # WebScrapper and Network Analyzer 💻
 
+[![Watch the video](https://github.com/MoonPengu/WebScrapper/blob/main/demo.webm)
+
 <img src="https://github.com/MoonPengu/WebScrapper/blob/main/Capture.PNG"/>
 
 Hollaaa !! The application contains three features for now :
