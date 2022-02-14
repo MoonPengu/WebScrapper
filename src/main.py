@@ -126,6 +126,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     """
     ### Network Analyser -------- (Start)
     """
+
     def __getCurrentTime(self, ):
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
@@ -591,10 +592,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         numberTW.setSectionResizeMode(
             1, QtWidgets.QHeaderView.Stretch)
 
+        cookieTW = self.CookieTW.horizontalHeader()
+        cookieTW.setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeToContents)
+        cookieTW.setSectionResizeMode(
+            1, QtWidgets.QHeaderView.ResizeToContents)
+        cookieTW.setSectionResizeMode(
+            2, QtWidgets.QHeaderView.ResizeToContents)
+        cookieTW.setSectionResizeMode(
+            3, QtWidgets.QHeaderView.Stretch)
+
         # Disable Table Cell Editing
         self.TopTW.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.EmailTW.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.NumberTW.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.CookieTW.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
 
         # Clearing all elements
         self.__clearAllTables()
@@ -604,6 +616,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.TopTW.setRowCount(0)
         self.EmailTW.setRowCount(0)
         self.NumberTW.setRowCount(0)
+        self.CookieTW.setRowCount(0)
 
     def __chooseDialog(self, ):
         path = QtWidgets.QFileDialog.getOpenFileName(self, 'Choose a csv containing list of URLs', '',
@@ -692,6 +705,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 "numbers": [
                     "95464212424",
                     "65 2126-1215"
+                ],
+                "cookies": [
+
                 ]
             },
             "https://www.google.com": {
@@ -704,6 +720,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 "numbers": [
                     "5246-2642",
                     "+91 9125464342"
+                ],
+                "cookies": [
+                    
                 ]
             }
         }
@@ -750,6 +769,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 emails = item["emails"]
                 numbers = item["numbers"]
+                cookies = item["cookies"]
 
                 for email in emails:
                     # Inserting data to Email Table
@@ -758,6 +778,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 for number in numbers:
                     # Inserting data to Number Table
                     self.__insertRowToNumbersTable(url, number)
+
+                for cookie in cookies:
+                    # Inserting data to Cookie Table
+                    self.__insertRowToCookieTable(url, cookie)
 
     def __insertRowToTopTable(self, url, title, ip):
         rowPosition = self.TopTW.rowCount()
@@ -786,6 +810,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             rowPosition, 0, QtWidgets.QTableWidgetItem(str(url)))
         self.NumberTW.setItem(
             rowPosition, 1, QtWidgets.QTableWidgetItem(str(number)))
+
+    def __insertRowToCookieTable(self, url, cookie):
+        rowPosition = self.CookieTW.rowCount()
+        self.CookieTW.insertRow(rowPosition)
+
+        self.CookieTW.setItem(
+            rowPosition, 0, QtWidgets.QTableWidgetItem(str(url)))
+        self.CookieTW.setItem(
+            rowPosition, 1, QtWidgets.QTableWidgetItem(str(cookie.domain)))
+        self.CookieTW.setItem(
+            rowPosition, 2, QtWidgets.QTableWidgetItem(str(cookie.name)))
+        self.CookieTW.setItem(
+            rowPosition, 3, QtWidgets.QTableWidgetItem(str(cookie.value)))
 
     """
     ### Web Scrapper -------- (End)

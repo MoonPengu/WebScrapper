@@ -9,7 +9,7 @@ import re  # re is regex
 import socket as s
 
 
-def getEmailAndNumber(url):
+def getEmailNumberCookie(url):
     """ Returns the list of fetched email and number of the given url"""
     # Transferring the user urls to deque
     urls = deque([url])
@@ -18,6 +18,7 @@ def getEmailAndNumber(url):
     scrapped_urls = set()
     emails = set()
     numbers = set()
+    cookies = []
 
     count = 0
     while len(urls):
@@ -39,19 +40,24 @@ def getEmailAndNumber(url):
         # print('[%d] Processing %s' % (count, url))
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=30)
         except(requests.exceptions.MissingSchema, requests.exceptions.ConnectionError):
             # print("There is some issue!")
             continue
 
+        # Emails
         new_emails = set(re.findall(
             r'[a-z0-9\. \-+_]+@[a-z0-9\. \-+_]+', response.text, re.I))
         emails.update(new_emails)
 
+        # Numbers
         new_numbers = set(re.findall(
             r'(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})', response.text, re.I))
         numbers.update(new_numbers)
 
+        # Cookies
+        cookies.extend(list(response.cookies))
+        
         soup = BeautifulSoup(response.text, features="lxml")
 
         for anchor in soup.find_all("a"):
@@ -70,8 +76,12 @@ def getEmailAndNumber(url):
     # print("Printing Numbers")
     # for num in numbers:
     #     print(num)
+    print(cookies)
+    return emails, numbers, cookies
 
-    return emails, numbers
+
+def getCookies(url):
+    cookies = []
 
 
 def getOwnHostIP():
@@ -109,7 +119,7 @@ def getPageTitle(url):
     """ Returns the page title of the given url"""
     pageTitle = ""
     try:
-        page = requests.get(url)
+        page = requests.get(url, timeout=30)
         soup = BeautifulSoup(page.content, 'html.parser')
 
         # Extract title of page
@@ -153,7 +163,7 @@ def isDomainUrl(src, dest):
 def getAllUrls(url):
     """Returns all the suburls"""
     subUrls = []
-    grab = requests.get(url)
+    grab = requests.get(url, timeout=30)
     soup = BeautifulSoup(grab.text, 'html.parser')
     for link in soup.find_all("a"):
         subUrl = link.get('href')
