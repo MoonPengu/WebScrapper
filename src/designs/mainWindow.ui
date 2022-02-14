@@ -65,7 +65,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0.963158, y2:0.006,
        <item>
         <widget class="QStackedWidget" name="stackedWidget">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="WebScrapperPage">
           <layout class="QVBoxLayout" name="verticalLayout">
@@ -128,7 +128,8 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0.963158, y2:0.006,
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(155, 115, 255);
 color: rgb(255, 255, 255);
-background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(150, 74, 255, 255), stop:1 rgba(116, 110, 248, 255))</string>
+background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(150, 74, 255, 255), stop:1 rgba(116, 110, 248, 255));
+background-color:rgba(255, 255, 255, 0);</string>
                    </property>
                    <property name="text">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Web Scrapper&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -378,28 +379,41 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgb
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label_2">
+                 <item>
+                  <widget class="QLabel" name="label_9">
                    <property name="styleSheet">
                     <string notr="true">color: rgb(255, 255, 255);
-background-color:#964aff</string>
+background-color:#964aff;
+background-color:rgba(255, 255, 255, 0);</string>
                    </property>
                    <property name="text">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Scraped Emails&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
-                 <item alignment="Qt::AlignHCenter">
+                 <item>
                   <widget class="QLabel" name="label_3">
                    <property name="styleSheet">
                     <string notr="true">color: rgb(255, 255, 255);
 background-color: rgb(74, 193, 236);
 
 background-color: rgb(50, 182, 236);
-background-color: rgb(75, 155, 241);</string>
+background-color: rgb(75, 155, 241);
+background-color:rgba(255, 255, 255, 0);</string>
                    </property>
                    <property name="text">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Scraped Numbers&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_2">
+                   <property name="styleSheet">
+                    <string notr="true">color: rgb(255, 255, 255);
+background-color:rgba(255, 255, 255, 0);</string>
+                   </property>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Scraped Cookies&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
@@ -526,6 +540,86 @@ background-color: rgb(75, 155, 241);</string>
                    <item row="1" column="1">
                     <property name="text">
                      <string>5974123144</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QTableWidget" name="CookieTW">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: rgb(230, 234, 255);</string>
+                   </property>
+                   <property name="editTriggers">
+                    <set>QAbstractItemView::NoEditTriggers</set>
+                   </property>
+                   <row>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </row>
+                   <row>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </row>
+                   <column>
+                    <property name="text">
+                     <string>URL</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Domain</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Name</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Value</string>
+                    </property>
+                   </column>
+                   <item row="0" column="0">
+                    <property name="text">
+                     <string>https://www.hybrique.com</string>
+                    </property>
+                   </item>
+                   <item row="0" column="1">
+                    <property name="text">
+                     <string>.hybrique.com</string>
+                    </property>
+                   </item>
+                   <item row="0" column="2">
+                    <property name="text">
+                     <string>asfsdasaf</string>
+                    </property>
+                   </item>
+                   <item row="0" column="3">
+                    <property name="text">
+                     <string>ffdg4g4g44</string>
+                    </property>
+                   </item>
+                   <item row="1" column="0">
+                    <property name="text">
+                     <string>https://www.hybrique.com</string>
+                    </property>
+                   </item>
+                   <item row="1" column="1">
+                    <property name="text">
+                     <string>.hybrique.com</string>
+                    </property>
+                   </item>
+                   <item row="1" column="2">
+                    <property name="text">
+                     <string>asfasfvsds</string>
+                    </property>
+                   </item>
+                   <item row="1" column="3">
+                    <property name="text">
+                     <string>ge54r56h56</string>
                     </property>
                    </item>
                   </widget>
@@ -1313,7 +1407,8 @@ color:black;</string>
             </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(150, 74, 255);</string>
+background-color: rgb(150, 74, 255);
+background-color:rgba(255, 255, 255, 0);</string>
             </property>
             <property name="text">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;LAPTOP-8TC5UP6O&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1437,7 +1532,8 @@ background-color: rgb(150, 74, 255);</string>
             </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(50, 182, 236);</string>
+background-color: rgb(50, 182, 236);
+background-color:rgba(255, 255, 255, 0);</string>
             </property>
             <property name="text">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;192.168.43.54&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

@@ -3,7 +3,7 @@ import time
 from PyQt5.QtCore import QObject, pyqtSignal
 from selenium import webdriver
 
-from core.Features import getIP, getPageTitle, getEmailAndNumber, getAllUrls
+from core.Features import getIP, getPageTitle, getEmailNumberCookie, getAllUrls
 
 CHROME_DRIVER_PATH = "./utils/chromedriver.exe"
 
@@ -35,17 +35,19 @@ class FetchData(QObject):
 
         # Get Emails and Numbers
         try:
-            emails, numbers = getEmailAndNumber(url)
+            emails, numbers, cookies = getEmailNumberCookie(url)
         except:
             emails = []
             numbers = []
+            cookies = []
 
         output = {
             "url": url,
             "title": title,
             "ip": ip,
             "emails": list(emails),
-            "numbers": list(numbers)
+            "numbers": list(numbers),
+            "cookies": cookies
         }
         # print(output)
         return output
@@ -56,7 +58,8 @@ class FetchData(QObject):
 
         for url in self.urls:
             # Getting all Urls:
-            allUrls = getAllUrls(url)
+            # allUrls = getAllUrls(url)
+            allUrls = [url]
 
             # print("Maxsize : ", len(allUrls) + 1)
             # self.updateMaxSize.emit(len(allUrls) + 1)
